@@ -1,0 +1,79 @@
+# Step1: Loading the Data 
+
+#Load libraries
+library(tidyverse)
+library(dplyr)
+library(janitor)
+
+#Load the dataset
+jobs_data <- read.csv("data/jobs_gender.csv", na ="NA")
+
+#Apply glimpse function on the data file to get an overview of the dataset
+glimpse(jobs_data)
+
+# Step2: Transforming the data 
+
+#Omit missing values from dataset
+jobs_data <- na.omit(jobs_data) 
+
+#Select only those variables that will be used specifically for this analysis to answer my questions of interest
+jobs_data <- subset(jobs_data, year == "2016" | year == "2013") 
+jobs_data <- subset(jobs_data, select = -c(occupation,minor_category,total_workers,workers_male,workers_female,wage_percent_of_male,percent_female, total_earnings))
+
+#Generate avg salaries column for men and women and calculate the difference in these two avg salaries using mutate function for years 2016 and 2013
+Data_2016 <- jobs_data %>%
+   filter(year == "2016") %>%
+   group_by(major_category) %>%
+   mutate(avg_earnings_men = mean(total_earnings_male), avg_earnings_women = mean(total_earnings_female) ) %>%
+   mutate(diff_in_salary = avg_earnings_men - avg_earnings_women)
+write_csv(Data_2016, "data/Data_2016.csv")
+Data_2013 <- jobs_data %>%
+   filter(year == "2013") %>%
+   group_by(major_category) %>%
+   mutate(avg_earnings_men = mean(total_earnings_male), avg_earnings_women = mean(total_earnings_female) ) %>%
+   mutate(diff_in_salary = avg_earnings_men - avg_earnings_women)
+write_csv(Data_2013, "data/Data_2013.csv")
+
+#Transform data using pivot_longer function (covert "wide" data into "long" format)
+Data_2016_long <- 
+      Data_2016 %>%
+      pivot_longer(cols= c("avg_earnings_men", "avg_earnings_women"), 
+                 names_to = "gender", 
+                 values_to = "avg_earnings")
+write.csv(Data_2016_long, "data/Data_2016_long.csv")
+Data_2013_long <- 
+      Data_2013 %>%
+      pivot_longer(cols= c("avg_earnings_men", "avg_earnings_women"), 
+                 names_to = "gender", 
+                 values_to = "avg_earnings")
+write.csv(Data_2013_long, "data/Data_2013_long.csv")
+
+#Combine the two transformed datasets for analysis using full_join function
+Data_long_2013_and_2016 <- full_join(Data_2016_long, Data_2013_long)
+
+#Show the transformed table here using glimpse()
+glimpse(Data_2016_long)
+
+#Step3: Visualizing and Summarizing the Data
+
+#Show a summary of the data - specifically the average earnings of men and women within different job sectors in the most recent year (2016) vs a previous year (2013).
+Summary_2016 <- jobs_data %>%
+   filter(year == "2016") %>%
+   group_by(major_category) %>%
+   summarize(mean_total_earnings_female = mean(total_earnings_female),  mean_total_earnings_male = mean(total_earnings_male))
+Summary_2013 <- jobs_data %>%
+   filter(year == "2013") %>%
+   group_by(major_category) %>%
+   summarize(mean_total_earnings_female = mean(total_earnings_female),  mean_total_earnings_male = mean(total_earnings_male))
+
+#Plot two separate bar graphs to visualize avg earnings by women and men for each job category in the year 2016 and 2013
+
+Plot_2016 <- ggplot(Data_2016_long, aes(x=major_category, y=avg_earnings, fill=gender, color = major_category)) + geom_bar(width = 0.9, stat='identity', position= position_dodge(width = 0.9)) + ggtitle("Gender pay-gap : Year 2016") + labs(x="Job Category", y="Average Yearly Earnings($)") + theme(axis.text.x=element_blank()) + scale_fill_grey() 
+Plot_2016
+Plot_2013 <- ggplot(Data_2013_long, aes(x=major_category, y=avg_earnings, fill=gender, color = major_category)) + geom_bar(width = 0.9, stat='identity', position= position_dodge(width = 0.9)) + ggtitle("Gender pay-gap : Year 2013") + labs(x="Job Category", y="Average Yearly Earnings($)") + theme(axis.text.x=element_blank()) + scale_fill_grey() 
+Plot_2013
+
+#Plot the difference in salaries between men and women in 2013 and 2016 to visualize whether there has been any change in gender pay-gap 
+
+Plot_2013_vs_2016 <- ggplot(Data_long_2013_and_2016) + aes(x = major_category, y = diff_in_salary, color = major_category) + geom_point() + labs(x="Job Category", y="Difference in Yearly Salary($)") + theme(axis.text.x=element_blank()) + facet_wrap(vars(year)) + ggtitle("Difference in Yearly Salaries Between Men and Women : 2013 Vs 2016")
+Plot_2013_vs_2016
