@@ -1,4 +1,4 @@
-# Ready-for-R_Final-Project
+# Ready-for-R : Final-Project
 This repository contains the final project that I developed as part of the Ready for R course (BMI 507, Oregon Health &amp; Science University) using the Tidyverse package in R 
 
 # Research Question: 
