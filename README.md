@@ -7,7 +7,7 @@ The dataset that I have chosen has employment and salary information of men and 
 # Expectation about the data prior to analysis: 
 I am expecting to see less gender-pay gap disparity in 2016 compared to 2013. With respect to job sector, I think some sectors such as service will have more disparity when compared to sectors such as management and healthcare. 
 
-# Final Summary post data analysis:
+# Final summary post data analysis:
 
 My question was to find out whether gender pay-gap existed in 2016, and if yes, how does it compare to 2013 and which job-sector had the highest pay-gap in 2016 vs 2013. My analysis above shows that gender pay-gap did exist as of 2016 and 2013 across all job sectors, where men were consistenly paid higher than women. When compared to 2013, the difference in yearly salaries between men and women in 2016 was very similar for two job-sectors - namely tech (computer, engineering and science) and service industries.For all other job sectors the difference in yearly salaries between men and women had increased in 2016 compared to 2013.
 
